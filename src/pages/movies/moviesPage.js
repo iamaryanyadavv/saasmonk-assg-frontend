@@ -298,7 +298,7 @@ export default function MoviesPage() {
             <Grid.Container css={{ padding: '12px 0px' }}>
                 {
                     movies
-                        .filter(movie => searchedMovie.length === 0 || movie.name.includes(searchedMovie))
+                        .filter(movie => searchedMovie.length === 0 || (movie.name.toLowerCase()).includes(searchedMovie.toLowerCase()))
                         .map((movie, index) => (
                             <Grid key={index} css={{
                                 padding: '24px',

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar, Button, Link, Text, Grid, Row, Col, Modal } from "@nextui-org/react";
 import './moviesPage.css'
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
@@ -94,6 +94,11 @@ export default function MoviesPage() {
             comment: 'This is the best movie ever! I really enjoyed it.'
         },
     ]
+
+    useEffect(()=>{
+        // Pull all movies
+        // Pull all reviews
+    })
 
     return (
         <>

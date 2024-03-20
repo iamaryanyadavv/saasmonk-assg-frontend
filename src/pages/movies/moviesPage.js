@@ -440,11 +440,23 @@ export default function MoviesPage() {
                     onChange={(e)=>{
                         setNewReview(prevState => ({
                             ...prevState,
-                            
+                            name: e.target.value
                         }))
                     }}/>
-                    <input className="movie-input" type='text' placeholder="Rating Out Of 10" />
-                    <textarea className="movie-input" placeholder="Comments"/>
+                    <input className="movie-input" type='text' placeholder="Rating Out Of 10" 
+                    onChange={(e)=>{
+                        setNewReview(prevState => ({
+                            ...prevState,
+                            rating: e.target.value
+                        }))
+                    }}/>
+                    <textarea className="movie-input" placeholder="Comments" 
+                    onChange={(e)=>{
+                        setNewReview(prevState => ({
+                            ...prevState,
+                            comment: e.target.value
+                        }))
+                    }}/>
                     <div style={{
                         display: 'flex',
                         justifyContent: 'flex-end',

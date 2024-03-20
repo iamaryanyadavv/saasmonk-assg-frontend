@@ -27,13 +27,69 @@ export default function MoviesPage() {
         comment: ''
     })
 
-    const sendNewMovieToDB = () => {
-        // send newMovie to DB
-    }
+    const sendNewMovieToDB = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/movies', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newMovie)
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data); 
+    
+            setNewMovie({
+                name: '',
+                releaseDate: '',
+                totalStars: 0,
+                totalReviews: 0
+            });
+    
+            await fetchMovies();
+        } catch (error) {
+            console.error("Error adding new movie:", error);
+        }
+    };
+    
+    const handleMovieSelection = (e) => {
+        const movieId = e.target.value;
+        const selectedMovie = movies.find(movie => movie._id === movieId);
+        setSelectedMovie(selectedMovie);
+        setNewReview(prevState => ({
+            ...prevState,
+            movieID: movieId
+        }));
+    };
 
-    const sendNewReviewToDB = () => {
-        // send newReview to DB
-    }
+    const sendNewReviewToDB = async () => {
+        if (!newReview.movieID) {
+            console.error("No movie selected for the review.");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:3001/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newReview)
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log("Review added:", data);
+
+            await fetchReviews();
+        } catch (error) {
+            console.error("Error adding new review:", error);
+        }
+    };
 
     const fetchMovies = async () => {
         try {
@@ -373,16 +429,14 @@ export default function MoviesPage() {
                     }}>
                         Add New Review
                     </Text>
-                    <select className="movie-input" id="movie-dropdown">
-                        <option value="" selected disabled hidden>
-                            Choose a movie
-                        </option>
-                        {movies.map((movie)=>(
-                            <option value={movie.id}>
-                                {movie.name}
-                            </option>
-                        ))}
-                    </select>
+                    <select className="movie-input" id="movie-dropdown" onChange={handleMovieSelection}>
+                    <option value="" selected disabled hidden>
+                        Choose a movie
+                    </option>
+                    {movies.map((movie) => (
+                        <option key={movie._id} value={movie._id}>{movie.name}</option>
+                    ))}
+                </select>
                     <input className="movie-input" type="text" placeholder="Your Name" 
                     onChange={(e)=>{
                         setNewReview(prevState => ({
@@ -416,8 +470,8 @@ export default function MoviesPage() {
                             color: '$white',
                             padding: '16px',
                             maxW: 'max-content',
-                        }}>
-                            Create Movie
+                        }} onClick={sendNewReviewToDB}>
+                            Create Review
                         </Button>
                     </div>
                 </Col>

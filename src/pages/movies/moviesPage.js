@@ -311,7 +311,19 @@ export default function MoviesPage() {
                                 }}>
                                     <Text css={{
                                         fontSize: '$xl2',
-                                        fontWeight: '$medium'
+                                        fontWeight: '$medium',
+                                        '&:hover':{
+                                            cursor: 'pointer'
+                                        }
+                                    }} onClick={() => {
+                                        setSelectedMovie({
+                                            id: movie._id,
+                                            name: movie.name,
+                                            releaseDate: movie.releaseDate,
+                                            totalStars: movie.totalStars,
+                                            totalReviews: movie.totalReviews
+                                        })
+                                        setShowMovieReviews(true)
                                     }}>
                                         {movie.name}
                                     </Text>

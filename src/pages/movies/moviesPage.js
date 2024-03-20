@@ -38,21 +38,13 @@ export default function MoviesPage() {
         comment: ''
     })
 
-    const sendEditedMovieToDB = async () => {
-        // send edited movie
-    }
-
-    const sendEditedReviewToDB = async () => {
-        // send edited review
-    }
-
     const deleteMovie = async (movieId) => {
         try {
-            const response = await fetch(`http://localhost:3001/movies/${movieId}`, {
+            const response = await fetch(`https://saasmonk-assg-backend.onrender.com/movies/${movieId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) {
-                throw new Error('HTTP error! status: ${response.status}');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             console.log(data.message);
@@ -66,7 +58,7 @@ export default function MoviesPage() {
 
     const editMovie = async (movieId) => {
         try {
-            const response = await fetch(`http://localhost:3001/movies/${movieId}`, {
+            const response = await fetch(`https://saasmonk-assg-backend.onrender.com/movies/${movieId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -74,7 +66,6 @@ export default function MoviesPage() {
                 body: JSON.stringify({
                     name: movieToEdit.name,
                     releaseDate: movieToEdit.releaseDate,
-                    // Include any other fields that are editable
                 })
             });
             if (!response.ok) {
@@ -83,21 +74,47 @@ export default function MoviesPage() {
             const data = await response.json();
             console.log(data.message);
         
-            setShowEditMovie(false); // Assuming you want to close the modal after editing
-            setRefresh(prev => !prev); // Trigger re-fetch of movies
+            setShowEditMovie(false); 
+            setRefresh(prev => !prev);
         } catch (error) {
             console.error("Error editing movie:", error);
         }
     };
-    
+
+    const editReview = async (reviewId) => {
+        try {
+            const response = await fetch(`https://saasmonk-assg-backend.onrender.com/reviews/${reviewId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    movieId: reviewToEdit.movieId,
+                    name: reviewToEdit.name,
+                    rating: reviewToEdit.rating,
+                    comment: reviewToEdit.comment
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data.message);
+        
+            setShowEditReview(false); 
+            setRefresh(prev => !prev);
+        } catch (error) {
+            console.error("Error editing review:", error);
+        }
+    };
 
     const deleteReview = async (reviewId) => {
         try {
-            const response = await fetch(`http://localhost:3001/reviews/${reviewId}`, {
+            const response = await fetch(`https://saasmonk-assg-backend.onrender.com/reviews/${reviewId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) {
-                throw new Error('HTTP error! status: ${response.status}');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             console.log(data.message);
@@ -111,7 +128,7 @@ export default function MoviesPage() {
 
     const sendNewMovieToDB = async () => {
         try {
-            const response = await fetch('http://localhost:3001/movies', {
+            const response = await fetch('https://saasmonk-assg-backend.onrender.com/movies', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -154,7 +171,7 @@ export default function MoviesPage() {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/reviews', {
+            const response = await fetch('https://saasmonk-assg-backend.onrender.com/reviews', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -175,7 +192,7 @@ export default function MoviesPage() {
 
     const fetchMovies = async () => {
         try {
-            const response = await fetch('http://localhost:3001/movies');
+            const response = await fetch('https://saasmonk-assg-backend.onrender.com/movies');
             // console.log(response)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -189,7 +206,7 @@ export default function MoviesPage() {
 
     const fetchReviews = async () => {
         try {
-            const response = await fetch('http://localhost:3001/reviews');
+            const response = await fetch('https://saasmonk-assg-backend.onrender.com/reviews');
             // console.log(response)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -391,6 +408,7 @@ export default function MoviesPage() {
 
                         {reviews.map((review, index) => {
                             if (review.movieId === selectedMovie.id) {
+                                console.log(review)
                                 return (
                                     <Col css={{
                                         display: 'flex',
@@ -441,15 +459,18 @@ export default function MoviesPage() {
                                             }}>
                                                 <FaEdit className="icons" size={20} onClick={() => {
                                                     setReviewToEdit({
+                                                        _id: review._id,
                                                         movieId: review.movieId,
                                                         name: review.name,
                                                         rating: review.rating,
                                                         comment: review.comment
                                                     })
                                                     setShowEditReview(true)
-                                                    console.log('click mf')
                                                 }} />
-                                                <MdDelete onClick={() => deleteReview(review._id)} className="icons" size={20} />
+                                                <MdDelete onClick={() => {
+                                                    deleteReview(review._id)
+                                                    setShowMovieReviews(false)
+                                                    }} className="icons" size={20} />
                                             </Row>
                                         </Row>
                                     </Col>
@@ -570,7 +591,6 @@ export default function MoviesPage() {
                                 maxW: 'max-content',
                             }}
                                 onClick={() => {
-                                    sendEditedMovieToDB()
                                     setShowEditMovie(false)
                                     setRefresh(true)
                                     editMovie(movieToEdit.id)
@@ -725,7 +745,7 @@ export default function MoviesPage() {
                                 padding: '16px',
                                 maxW: 'max-content',
                             }} onClick={() => {
-                                sendEditedReviewToDB()
+                                editReview(reviewToEdit._id)
                                 setShowEditReview(false)
                                 setRefresh(true)
                             }}>

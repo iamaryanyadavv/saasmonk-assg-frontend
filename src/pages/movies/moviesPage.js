@@ -11,6 +11,7 @@ export default function MoviesPage() {
     const [showMovieReviews, setShowMovieReviews] = useState(false)
     const [selectedMovie, setSelectedMovie] = useState({})
     const [movies, setMovies] = useState([]); 
+    const [reviews, setReviews] = useState([]);
 
     const [newMovie, setNewMovie] = useState({
         name: '',
@@ -25,45 +26,6 @@ export default function MoviesPage() {
         rating: 0,
         comment: ''
     })
-
-    const reviews = [
-        {
-            movieID: 1,
-            name: 'Amitav Khandelwal',
-            rating: 9,
-            comment: 'This is the best movie ever! I really enjoyed it.'
-        },
-        {
-            movieID: 1,
-            name: 'Amitav Khandelwal',
-            rating: 9,
-            comment: 'This is the best movie ever! I really enjoyed it.'
-        },
-        {
-            movieID: 2,
-            name: 'Amitav Khandelwal',
-            rating: 10,
-            comment: 'This is the best movie ever! I really enjoyed it.'
-        },
-        {
-            movieID: 2,
-            name: 'Amitav Khandelwal',
-            rating: 10,
-            comment: 'This is the best movie ever! I really enjoyed it.'
-        },
-        {
-            movieID: 3,
-            name: 'Amitav Khandelwal',
-            rating: 8,
-            comment: 'This is the best movie ever! I really enjoyed it.'
-        },
-        {
-            movieID: 3,
-            name: 'Amitav Khandelwal',
-            rating: 8,
-            comment: 'This is the best movie ever! I really enjoyed it.'
-        },
-    ]
 
     const sendNewMovieToDB = () => {
         // send newMovie to DB
@@ -87,8 +49,24 @@ export default function MoviesPage() {
         }
     };
 
+    const fetchReviews = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/reviews'); 
+            console.log(response)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data)
+            setReviews(data); 
+        } catch (error) {
+            console.error("Error fetching reviews:", error);
+        }
+    };
+
     useEffect(() => {
         fetchMovies();
+        fetchReviews();
     }, []); 
 
     return (

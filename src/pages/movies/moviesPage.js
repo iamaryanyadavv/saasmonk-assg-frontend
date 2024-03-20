@@ -64,6 +64,33 @@ export default function MoviesPage() {
         }
     };
 
+    const editMovie = async (movieId) => {
+        try {
+            const response = await fetch(`http://localhost:3001/movies/${movieId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: movieToEdit.name,
+                    releaseDate: movieToEdit.releaseDate,
+                    // Include any other fields that are editable
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data.message);
+        
+            setShowEditMovie(false); // Assuming you want to close the modal after editing
+            setRefresh(prev => !prev); // Trigger re-fetch of movies
+        } catch (error) {
+            console.error("Error editing movie:", error);
+        }
+    };
+    
+
     const deleteReview = async (reviewId) => {
         try {
             const response = await fetch(`http://localhost:3001/reviews/${reviewId}`, {
@@ -546,6 +573,7 @@ export default function MoviesPage() {
                                     sendEditedMovieToDB()
                                     setShowEditMovie(false)
                                     setRefresh(true)
+                                    editMovie(movieToEdit.id)
                                 }}>
                                 Edit Movie
                             </Button>

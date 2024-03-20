@@ -10,7 +10,7 @@ export default function MoviesPage() {
     const [showAddReview, setShowAddReview] = useState(false)
     const [showMovieReviews, setShowMovieReviews] = useState(false)
     const [selectedMovie, setSelectedMovie] = useState({})
-    const [movies, setMovies] = useState([]); 
+    const [movies, setMovies] = useState([]);
     const [reviews, setReviews] = useState([]);
 
     const [newMovie, setNewMovie] = useState({
@@ -29,7 +29,7 @@ export default function MoviesPage() {
 
     const sendNewMovieToDB = async () => {
         try {
-            const response = await fetch('http://localhost:3001/movies', { 
+            const response = await fetch('http://localhost:3001/movies', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,21 +40,21 @@ export default function MoviesPage() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log(data); 
-    
+            // console.log(data); 
+
             setNewMovie({
                 name: '',
                 releaseDate: '',
                 totalStars: 0,
                 totalReviews: 0
             });
-    
+            setShowAddMovie(false)
             await fetchMovies();
         } catch (error) {
             console.error("Error adding new movie:", error);
         }
     };
-    
+
     const handleMovieSelection = (e) => {
         const movieId = e.target.value;
         const selectedMovie = movies.find(movie => movie._id === movieId);
@@ -84,7 +84,7 @@ export default function MoviesPage() {
             }
             const data = await response.json();
             console.log("Review added:", data);
-
+            setShowAddReview(false)
             await fetchReviews();
         } catch (error) {
             console.error("Error adding new review:", error);
@@ -93,13 +93,13 @@ export default function MoviesPage() {
 
     const fetchMovies = async () => {
         try {
-            const response = await fetch('http://localhost:3001/movies'); 
-            console.log(response)
+            const response = await fetch('http://localhost:3001/movies');
+            // console.log(response)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            setMovies(data); 
+            setMovies(data);
         } catch (error) {
             console.error("Error fetching movies:", error);
         }
@@ -107,14 +107,14 @@ export default function MoviesPage() {
 
     const fetchReviews = async () => {
         try {
-            const response = await fetch('http://localhost:3001/reviews'); 
-            console.log(response)
+            const response = await fetch('http://localhost:3001/reviews');
+            // console.log(response)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log(data)
-            setReviews(data); 
+            // console.log(data)
+            setReviews(data);
         } catch (error) {
             console.error("Error fetching reviews:", error);
         }
@@ -123,7 +123,7 @@ export default function MoviesPage() {
     useEffect(() => {
         fetchMovies();
         fetchReviews();
-    }, []); 
+    }, []);
 
     return (
         <>
@@ -219,24 +219,55 @@ export default function MoviesPage() {
                             }}>
                                 Released: {movie.releaseDate}
                             </Text>
-                            <Text css={{
-                                fontWeight: '$bold',
-                                '&:hover': {
-                                    cursor: 'pointer'
-                                }
-                            }}
-                                onClick={() => {
-                                    setSelectedMovie({
-                                        id: movie.id,
-                                        name: movie.name,
-                                        releaseDate: movie.releaseDate,
-                                        totalStars: movie.totalStars,
-                                        totalReviews: movie.totalReviews
-                                    })
-                                    setShowMovieReviews(true)
+                            {movie.totalReviews == 0 ?
+                                <Text css={{
+                                    fontWeight: '$bold',
                                 }}>
-                                Rating: {(movie.totalStars / movie.totalReviews).toFixed(2)} / 10
-                            </Text>
+                                    No Reviews...
+                                </Text>
+                                :
+                                <>
+                                    {movie.totalStars == 0 ?
+                                        <Text css={{
+                                            fontWeight: '$bold',
+                                            '&:hover': {
+                                                cursor: 'pointer'
+                                            }
+                                        }}
+                                            onClick={() => {
+                                                setSelectedMovie({
+                                                    id: movie._id,
+                                                    name: movie.name,
+                                                    releaseDate: movie.releaseDate,
+                                                    totalStars: movie.totalStars,
+                                                    totalReviews: movie.totalReviews
+                                                })
+                                                setShowMovieReviews(true)
+                                            }}>
+                                            Rating: 0/10
+                                        </Text>
+                                        :
+                                        <Text css={{
+                                            fontWeight: '$bold',
+                                            '&:hover': {
+                                                cursor: 'pointer'
+                                            }
+                                        }}
+                                            onClick={() => {
+                                                setSelectedMovie({
+                                                    id: movie._id,
+                                                    name: movie.name,
+                                                    releaseDate: movie.releaseDate,
+                                                    totalStars: movie.totalStars,
+                                                    totalReviews: movie.totalReviews
+                                                })
+                                                setShowMovieReviews(true)
+                                            }}>
+                                            Rating: {(movie.totalStars / movie.totalReviews).toFixed(2)} / 10
+                                        </Text>
+                                    }
+                                </>
+                            }
                             <Row css={{
                                 jc: 'flex-end',
                                 gap: '4px'
@@ -289,7 +320,7 @@ export default function MoviesPage() {
                         </Row>
 
                         {reviews.map((review, index) => {
-                            if (review.movieID === selectedMovie.id) {
+                            if (review.movieId === selectedMovie.id) {
                                 return (
                                     <Col css={{
                                         display: 'flex',
@@ -373,18 +404,18 @@ export default function MoviesPage() {
                     }}>
                         Add New Movie
                     </Text>
-                    <input className="movie-input" type="text" placeholder="Movie Name" onChange={(e)=>{
+                    <input className="movie-input" type="text" placeholder="Movie Name" onChange={(e) => {
                         setNewMovie(prevState => ({
                             ...prevState,
                             name: e.target.value
                         }))
-                    }}/>
-                    <input className="movie-input" type='text' placeholder="Release Date (1st March, 2023)" onChange={(e)=>{
+                    }} />
+                    <input className="movie-input" type='text' placeholder="Release Date (1st March, 2023)" onChange={(e) => {
                         setNewMovie(prevState => ({
                             ...prevState,
                             releaseDate: e.target.value
                         }))
-                    }}/>
+                    }} />
                     <div style={{
                         display: 'flex',
                         justifyContent: 'flex-end',
@@ -398,9 +429,9 @@ export default function MoviesPage() {
                             padding: '16px',
                             maxW: 'max-content',
                         }}
-                        onClick={()=>{
-                            sendNewMovieToDB()
-                        }}>
+                            onClick={() => {
+                                sendNewMovieToDB()
+                            }}>
                             Create Movie
                         </Button>
                     </div>
@@ -430,34 +461,34 @@ export default function MoviesPage() {
                         Add New Review
                     </Text>
                     <select className="movie-input" id="movie-dropdown" onChange={handleMovieSelection}>
-                    <option value="" selected disabled hidden>
-                        Choose a movie
-                    </option>
-                    {movies.map((movie) => (
-                        <option key={movie._id} value={movie._id}>{movie.name}</option>
-                    ))}
-                </select>
-                    <input className="movie-input" type="text" placeholder="Your Name" 
-                    onChange={(e)=>{
-                        setNewReview(prevState => ({
-                            ...prevState,
-                            name: e.target.value
-                        }))
-                    }}/>
-                    <input className="movie-input" type='text' placeholder="Rating Out Of 10" 
-                    onChange={(e)=>{
-                        setNewReview(prevState => ({
-                            ...prevState,
-                            rating: e.target.value
-                        }))
-                    }}/>
-                    <textarea className="movie-input" placeholder="Comments" 
-                    onChange={(e)=>{
-                        setNewReview(prevState => ({
-                            ...prevState,
-                            comment: e.target.value
-                        }))
-                    }}/>
+                        <option value="" selected disabled hidden>
+                            Choose a movie
+                        </option>
+                        {movies.map((movie) => (
+                            <option key={movie._id} value={movie._id}>{movie.name}</option>
+                        ))}
+                    </select>
+                    <input className="movie-input" type="text" placeholder="Your Name"
+                        onChange={(e) => {
+                            setNewReview(prevState => ({
+                                ...prevState,
+                                name: e.target.value
+                            }))
+                        }} />
+                    <input className="movie-input" type='text' placeholder="Rating Out Of 10"
+                        onChange={(e) => {
+                            setNewReview(prevState => ({
+                                ...prevState,
+                                rating: e.target.value
+                            }))
+                        }} />
+                    <textarea className="movie-input" placeholder="Comments"
+                        onChange={(e) => {
+                            setNewReview(prevState => ({
+                                ...prevState,
+                                comment: e.target.value
+                            }))
+                        }} />
                     <div style={{
                         display: 'flex',
                         justifyContent: 'flex-end',

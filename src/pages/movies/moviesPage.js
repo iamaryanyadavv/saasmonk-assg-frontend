@@ -12,6 +12,8 @@ export default function MoviesPage() {
     const [selectedMovie, setSelectedMovie] = useState({})
     const [movies, setMovies] = useState([]);
     const [reviews, setReviews] = useState([]);
+    const [searchedMovie, setSearchedMovie] = useState('')
+    const [refresh, setRefresh] = useState(false)
 
     const [newMovie, setNewMovie] = useState({
         name: '',
@@ -123,7 +125,7 @@ export default function MoviesPage() {
     useEffect(() => {
         fetchMovies();
         fetchReviews();
-    }, []);
+    }, [refresh]);
 
     return (
         <>
@@ -190,44 +192,43 @@ export default function MoviesPage() {
                 }}>
                     <HiMiniMagnifyingGlass size={16} style={{ margin: '4px' }} />
                     <input type="text" className="search-input" placeholder="Search for your favourite movie"
-                    />
+                        onChange={(e) => {
+                            setSearchedMovie(e.target.value)
+                        }} />
                 </Row>
             </Grid.Container>
 
-            <Grid.Container css={{
-                padding: '12px 0px'
-            }}>
-                {movies.map((movie, index) => (
-                    <Grid key={index} css={{
-                        padding: '24px',
-                        backgroundColor: '$purple200',
-                        margin: '24px',
-                    }}>
-                        <Col css={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                        }}>
-                            <Text css={{
-                                fontSize: '$xl2',
-                                fontWeight: '$medium'
+            <Grid.Container css={{ padding: '12px 0px' }}>
+                {
+                    movies
+                        .filter(movie => searchedMovie.length === 0 || movie.name.includes(searchedMovie))
+                        .map((movie, index) => (
+                            <Grid key={index} css={{
+                                padding: '24px',
+                                backgroundColor: '$purple200',
+                                margin: '24px',
                             }}>
-                                {movie.name}
-                            </Text>
-                            <Text css={{
-                                fontStyle: 'italic',
-                                padding: '4px 0px 8px 0px'
-                            }}>
-                                Released: {movie.releaseDate}
-                            </Text>
-                            {movie.totalReviews == 0 ?
-                                <Text css={{
-                                    fontWeight: '$bold',
+                                <Col css={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
                                 }}>
-                                    No Reviews...
-                                </Text>
-                                :
-                                <>
-                                    {movie.totalStars == 0 ?
+                                    <Text css={{
+                                        fontSize: '$xl2',
+                                        fontWeight: '$medium'
+                                    }}>
+                                        {movie.name}
+                                    </Text>
+                                    <Text css={{
+                                        fontStyle: 'italic',
+                                        padding: '4px 0px 8px 0px'
+                                    }}>
+                                        Released: {movie.releaseDate}
+                                    </Text>
+                                    {movie.totalReviews === 0 ? (
+                                        <Text css={{
+                                            fontWeight: '$bold',
+                                        }}>No Reviews...</Text>
+                                    ) : (
                                         <Text css={{
                                             fontWeight: '$bold',
                                             '&:hover': {
@@ -244,41 +245,24 @@ export default function MoviesPage() {
                                                 })
                                                 setShowMovieReviews(true)
                                             }}>
-                                            Rating: 0/10
+                                            Rating: {movie.totalStars === 0 ? 0 : (movie.totalStars / movie.totalReviews).toFixed(2)} / 10
                                         </Text>
-                                        :
-                                        <Text css={{
-                                            fontWeight: '$bold',
-                                            '&:hover': {
-                                                cursor: 'pointer'
-                                            }
-                                        }}
-                                            onClick={() => {
-                                                setSelectedMovie({
-                                                    id: movie._id,
-                                                    name: movie.name,
-                                                    releaseDate: movie.releaseDate,
-                                                    totalStars: movie.totalStars,
-                                                    totalReviews: movie.totalReviews
-                                                })
-                                                setShowMovieReviews(true)
-                                            }}>
-                                            Rating: {(movie.totalStars / movie.totalReviews).toFixed(2)} / 10
-                                        </Text>
-                                    }
-                                </>
-                            }
-                            <Row css={{
-                                jc: 'flex-end',
-                                gap: '4px'
-                            }}>
-                                <FaEdit className="icons" size={20} />
-                                <MdDelete className="icons" size={20} />
-                            </Row>
-                        </Col>
-                    </Grid>
-                ))}
+                                    )}
+                                    <Row css={{
+                                        jc: 'flex-end',
+                                        gap: '4px'
+                                    }}>
+                                        <FaEdit className="icons" size={20} />
+                                        <MdDelete className="icons" size={20} />
+                                    </Row>
+                                </Col>
+                            </Grid>
+                        ))
+                }
             </Grid.Container>
+
+
+
 
             {Object.keys(selectedMovie).length > 0 && showMovieReviews &&
                 <Modal
@@ -431,6 +415,8 @@ export default function MoviesPage() {
                         }}
                             onClick={() => {
                                 sendNewMovieToDB()
+                                setShowAddMovie(false)
+                                setRefresh(true)
                             }}>
                             Create Movie
                         </Button>
@@ -501,7 +487,11 @@ export default function MoviesPage() {
                             color: '$white',
                             padding: '16px',
                             maxW: 'max-content',
-                        }} onClick={sendNewReviewToDB}>
+                        }} onClick={() => {
+                            sendNewReviewToDB()
+                            setShowAddReview(false)
+                            setRefresh(true)
+                        }}>
                             Create Review
                         </Button>
                     </div>

@@ -7,13 +7,22 @@ import { MdDelete } from "react-icons/md";
 
 export default function MoviesPage() {
     const [showAddMovie, setShowAddMovie] = useState(false)
+    const [showEditMovie, setShowEditMovie] = useState(false)
     const [showAddReview, setShowAddReview] = useState(false)
+    const [showEditReview, setShowEditReview] = useState(false)
+
     const [showMovieReviews, setShowMovieReviews] = useState(false)
     const [selectedMovie, setSelectedMovie] = useState({})
+
     const [movies, setMovies] = useState([]);
     const [reviews, setReviews] = useState([]);
+
     const [searchedMovie, setSearchedMovie] = useState('')
     const [refresh, setRefresh] = useState(false)
+
+    const [movieToEdit, setMovieToEdit] = useState({})
+
+    const [reviewToEdit, setReviewToEdit] = useState({})
 
     const [newMovie, setNewMovie] = useState({
         name: '',
@@ -28,6 +37,50 @@ export default function MoviesPage() {
         rating: 0,
         comment: ''
     })
+
+    const sendEditedMovieToDB = async () => {
+        // send edited movie
+    }
+
+    const sendEditedReviewToDB = async () => {
+        // send edited review
+    }
+
+    const deleteMovie = async (movieId) => {
+        try {
+            const response = await fetch('http://localhost:3001/movies/${movieId}', {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('HTTP error! status: ${response.status}');
+            }
+            const data = await response.json();
+            console.log(data.message);
+    
+            // Refresh the movie list to reflect the deletion
+            await fetchMovies();
+        } catch (error) {
+            console.error("Error deleting movie:", error);
+        }
+    };
+
+    const deleteReview = async (reviewId) => {
+        try {
+            const response = await fetch('http://localhost:3001/reviews/${reviewId}', {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('HTTP error! status: ${response.status}');
+            }
+            const data = await response.json();
+            console.log(data.message);
+    
+            // Refresh the movie list to reflect the deletion
+            await fetchMovies();
+        } catch (error) {
+            console.error("Error deleting review:", error);
+        }
+    };
 
     const sendNewMovieToDB = async () => {
         try {
@@ -252,17 +305,23 @@ export default function MoviesPage() {
                                         jc: 'flex-end',
                                         gap: '4px'
                                     }}>
-                                        <FaEdit className="icons" size={20} />
-                                        <MdDelete className="icons" size={20} />
+                                        <FaEdit className="icons" size={20} onClick={() => {
+                                            setMovieToEdit({
+                                                id: movie._id,
+                                                name: movie.name,
+                                                releaseDate: movie.releaseDate,
+                                                totalStars: movie.totalStars,
+                                                totalReviews: movie.totalReviews
+                                            })
+                                            setShowEditMovie(true)
+                                        }} />
+                                        <MdDelete onClick={() => deleteMovie(movie._id)} className="icons" size={20} />
                                     </Row>
                                 </Col>
                             </Grid>
                         ))
                 }
             </Grid.Container>
-
-
-
 
             {Object.keys(selectedMovie).length > 0 && showMovieReviews &&
                 <Modal
@@ -353,8 +412,16 @@ export default function MoviesPage() {
                                                 jc: 'flex-end',
                                                 gap: '4px',
                                             }}>
-                                                <FaEdit className="icons" size={20} />
-                                                <MdDelete className="icons" size={20} />
+                                                <FaEdit className="icons" size={20} onChange={() => {
+                                                    setReviewToEdit({
+                                                        movieId: review.movieId,
+                                                        name: review.name,
+                                                        rating: review.rating,
+                                                        comment: review.comment
+                                                    })
+                                                    setShowEditReview(true)
+                                                }} />
+                                                <MdDelete onClick={() => deleteReview(review._id)} className="icons" size={20} />
                                             </Row>
                                         </Row>
                                     </Col>
@@ -366,6 +433,7 @@ export default function MoviesPage() {
                 </Modal>
             }
 
+            {/* Add Movie Modal */}
             <Modal
                 closeButton
                 aria-labelledby="Add Movie Modal"
@@ -424,6 +492,68 @@ export default function MoviesPage() {
                 </Col>
             </Modal>
 
+            {/* Edit Movie Modal */}
+            {Object.keys(movieToEdit).length > 0 && showEditMovie &&
+                <Modal
+                    closeButton
+                    aria-labelledby="Edit Movie Modal"
+                    open={showEditMovie}
+                    onClose={() => {
+                        setShowEditMovie(false)
+                    }}
+                >
+                    <Col css={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        jc: 'flex-start',
+                        padding: '24px'
+                    }}>
+                        <Text css={{
+                            fontSize: '$xl2',
+                            fontWeight: '$semibold',
+                            textAlign: 'left',
+                            paddingLeft: '12px'
+                        }}>
+                            Edit movie
+                        </Text>
+                        <input className="movie-input" type="text" placeholder={movieToEdit.name} onChange={(e) => {
+                            setMovieToEdit(movieToEdit => ({
+                                ...movieToEdit,
+                                name: e.target.value
+                            }))
+                        }} />
+                        <input className="movie-input" type='text' placeholder={movieToEdit.releaseDate} onChange={(e) => {
+                            setMovieToEdit(movieToEdit => ({
+                                ...movieToEdit,
+                                releaseDate: e.target.value
+                            }))
+                        }} />
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            marginRight: '24px',
+                            marginTop: '12px'
+                        }}>
+                            <Button auto css={{
+                                backgroundColor: '$purple600',
+                                borderRadius: '6px',
+                                color: '$white',
+                                padding: '16px',
+                                maxW: 'max-content',
+                            }}
+                                onClick={() => {
+                                    sendEditedMovieToDB()
+                                    setShowEditMovie(false)
+                                    setRefresh(true)
+                                }}>
+                                Edit Movie
+                            </Button>
+                        </div>
+                    </Col>
+                </Modal>
+            }
+
+            {/* Add Review Modal */}
             <Modal
                 closeButton
                 aria-labelledby="Add Movie Modal"
@@ -497,6 +627,85 @@ export default function MoviesPage() {
                     </div>
                 </Col>
             </Modal>
+
+            {/* Edit Review Modal */}
+            {Object.keys(reviewToEdit).length > 0 && showEditReview &&
+                <Modal
+                    closeButton
+                    aria-labelledby="Edit Review Modal"
+                    open={showEditReview}
+                    onClose={() => {
+                        setShowEditReview(false)
+                    }}
+                >
+                    <Col css={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        jc: 'flex-start',
+                        padding: '24px'
+                    }}>
+                        <Text css={{
+                            fontSize: '$xl2',
+                            fontWeight: '$semibold',
+                            textAlign: 'left',
+                            paddingLeft: '12px'
+                        }}>
+                            Edit Review
+                        </Text>
+                        {movies.map((movie) => {
+                            if (movie._id == reviewToEdit.movieId) {
+                                return (
+                                    <select className="movie-input" id="movie-dropdown">
+                                        <option value="" selected disabled hidden key={movie._id}>{movie.name}</option>
+                                    </select>
+                                )
+                            }
+                        }
+                        )}
+                        <input className="movie-input" type="text" placeholder={reviewToEdit.name}
+                            onChange={(e) => {
+                                setReviewToEdit(reviewToEdit => ({
+                                    ...reviewToEdit,
+                                    name: e.target.value
+                                }))
+                            }} />
+                        <input className="movie-input" type='text' placeholder={reviewToEdit.rating}
+                            onChange={(e) => {
+                                setReviewToEdit(reviewToEdit => ({
+                                    ...reviewToEdit,
+                                    rating: e.target.value
+                                }))
+                            }} />
+                        <textarea className="movie-input" placeholder={reviewToEdit.comment}
+                            onChange={(e) => {
+                                setReviewToEdit(reviewToEdit => ({
+                                    ...reviewToEdit,
+                                    comment: e.target.value
+                                }))
+                            }} />
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            marginRight: '24px',
+                            marginTop: '12px'
+                        }}>
+                            <Button auto css={{
+                                backgroundColor: '$purple600',
+                                borderRadius: '6px',
+                                color: '$white',
+                                padding: '16px',
+                                maxW: 'max-content',
+                            }} onClick={() => {
+                                sendEditedReviewToDB()
+                                setShowEditReview(false)
+                                setRefresh(true)
+                            }}>
+                                Edit Review
+                            </Button>
+                        </div>
+                    </Col>
+                </Modal>
+            }
         </>
     )
 }

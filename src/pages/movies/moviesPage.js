@@ -48,7 +48,7 @@ export default function MoviesPage() {
 
     const deleteMovie = async (movieId) => {
         try {
-            const response = await fetch('http://localhost:3001/movies/${movieId}', {
+            const response = await fetch(`http://localhost:3001/movies/${movieId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) {
@@ -66,7 +66,7 @@ export default function MoviesPage() {
 
     const deleteReview = async (reviewId) => {
         try {
-            const response = await fetch('http://localhost:3001/reviews/${reviewId}', {
+            const response = await fetch(`http://localhost:3001/reviews/${reviewId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) {
@@ -412,7 +412,7 @@ export default function MoviesPage() {
                                                 jc: 'flex-end',
                                                 gap: '4px',
                                             }}>
-                                                <FaEdit className="icons" size={20} onChange={() => {
+                                                <FaEdit className="icons" size={20} onClick={() => {
                                                     setReviewToEdit({
                                                         movieId: review.movieId,
                                                         name: review.name,
@@ -420,6 +420,7 @@ export default function MoviesPage() {
                                                         comment: review.comment
                                                     })
                                                     setShowEditReview(true)
+                                                    console.log('click mf')
                                                 }} />
                                                 <MdDelete onClick={() => deleteReview(review._id)} className="icons" size={20} />
                                             </Row>

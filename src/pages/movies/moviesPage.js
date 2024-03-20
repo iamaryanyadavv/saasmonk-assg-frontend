@@ -11,6 +11,20 @@ export default function MoviesPage() {
     const [showMovieReviews, setShowMovieReviews] = useState(false)
     const [selectedMovie, setSelectedMovie] = useState({})
 
+    const [newMovie, setNewMovie] = useState({
+        name: '',
+        releaseDate: '',
+        totalStars: 0,
+        totalReviews: 0
+    })
+
+    const [newReview, setNewReview] = useState({
+        movieID: '',
+        name: '',
+        rating: 0,
+        comment: ''
+    })
+
     const movies = [
         {
             id: 1,
@@ -94,6 +108,14 @@ export default function MoviesPage() {
             comment: 'This is the best movie ever! I really enjoyed it.'
         },
     ]
+
+    const sendNewMovieToDB = () => {
+        // send newMovie to DB
+    }
+
+    const sendNewReviewToDB = () => {
+        // send newReview to DB
+    }
 
     useEffect(()=>{
         // Pull all movies
@@ -348,8 +370,18 @@ export default function MoviesPage() {
                     }}>
                         Add New Movie
                     </Text>
-                    <input className="movie-input" type="text" placeholder="Movie Name" />
-                    <input className="movie-input" type='text' placeholder="Release Date" />
+                    <input className="movie-input" type="text" placeholder="Movie Name" onChange={(e)=>{
+                        setNewMovie(prevState => ({
+                            ...prevState,
+                            name: e.target.value
+                        }))
+                    }}/>
+                    <input className="movie-input" type='text' placeholder="Release Date (1st March, 2023)" onChange={(e)=>{
+                        setNewMovie(prevState => ({
+                            ...prevState,
+                            releaseDate: e.target.value
+                        }))
+                    }}/>
                     <div style={{
                         display: 'flex',
                         justifyContent: 'flex-end',
@@ -362,6 +394,9 @@ export default function MoviesPage() {
                             color: '$white',
                             padding: '16px',
                             maxW: 'max-content',
+                        }}
+                        onClick={()=>{
+                            sendNewMovieToDB()
                         }}>
                             Create Movie
                         </Button>
@@ -401,7 +436,13 @@ export default function MoviesPage() {
                             </option>
                         ))}
                     </select>
-                    <input className="movie-input" type="text" placeholder="Your Name" />
+                    <input className="movie-input" type="text" placeholder="Your Name" 
+                    onChange={(e)=>{
+                        setNewReview(prevState => ({
+                            ...prevState,
+                            
+                        }))
+                    }}/>
                     <input className="movie-input" type='text' placeholder="Rating Out Of 10" />
                     <textarea className="movie-input" placeholder="Comments"/>
                     <div style={{

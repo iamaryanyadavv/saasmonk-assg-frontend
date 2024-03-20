@@ -10,6 +10,7 @@ export default function MoviesPage() {
     const [showAddReview, setShowAddReview] = useState(false)
     const [showMovieReviews, setShowMovieReviews] = useState(false)
     const [selectedMovie, setSelectedMovie] = useState({})
+    const [movies, setMovies] = useState([]); 
 
     const [newMovie, setNewMovie] = useState({
         name: '',
@@ -25,50 +26,50 @@ export default function MoviesPage() {
         comment: ''
     })
 
-    const movies = [
-        {
-            id: 1,
-            name: 'Star Wars: A New Hope',
-            releaseDate: '1st August, 2022',
-            totalStars: 36,
-            totalReviews: 4
-        },
-        {
-            id: 1,
-            name: 'Star Wars: A New Hope',
-            releaseDate: '1st August, 2022',
-            totalStars: 36,
-            totalReviews: 4
-        },
-        {
-            id: 2,
-            name: 'Star Wars: A New Hope',
-            releaseDate: '1st August, 2022',
-            totalStars: 36,
-            totalReviews: 4
-        },
-        {
-            id: 2,
-            name: 'Star Wars: A New Hope',
-            releaseDate: '1st August, 2022',
-            totalStars: 36,
-            totalReviews: 4
-        },
-        {
-            id: 3,
-            name: 'Star Wars: A New Hope',
-            releaseDate: '1st August, 2022',
-            totalStars: 36,
-            totalReviews: 4
-        },
-        {
-            id: 3,
-            name: 'Star Wars: A New Hope',
-            releaseDate: '1st August, 2022',
-            totalStars: 36,
-            totalReviews: 4
-        },
-    ]
+    // const movies = [
+    //     {
+    //         id: 1,
+    //         name: 'Star Wars: A New Hope',
+    //         releaseDate: '1st August, 2022',
+    //         totalStars: 36,
+    //         totalReviews: 4
+    //     },
+    //     {
+    //         id: 1,
+    //         name: 'Star Wars: A New Hope',
+    //         releaseDate: '1st August, 2022',
+    //         totalStars: 36,
+    //         totalReviews: 4
+    //     },
+    //     {
+    //         id: 2,
+    //         name: 'Star Wars: A New Hope',
+    //         releaseDate: '1st August, 2022',
+    //         totalStars: 36,
+    //         totalReviews: 4
+    //     },
+    //     {
+    //         id: 2,
+    //         name: 'Star Wars: A New Hope',
+    //         releaseDate: '1st August, 2022',
+    //         totalStars: 36,
+    //         totalReviews: 4
+    //     },
+    //     {
+    //         id: 3,
+    //         name: 'Star Wars: A New Hope',
+    //         releaseDate: '1st August, 2022',
+    //         totalStars: 36,
+    //         totalReviews: 4
+    //     },
+    //     {
+    //         id: 3,
+    //         name: 'Star Wars: A New Hope',
+    //         releaseDate: '1st August, 2022',
+    //         totalStars: 36,
+    //         totalReviews: 4
+    //     },
+    // ]
 
     const reviews = [
         {
@@ -117,10 +118,23 @@ export default function MoviesPage() {
         // send newReview to DB
     }
 
-    useEffect(()=>{
-        // Pull all movies
-        // Pull all reviews
-    })
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const response = await fetch('http://localhost:3001/movies'); 
+                console.log(response)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                setMovies(data); 
+            } catch (error) {
+                console.error("Error fetching movies:", error);
+            }
+        };
+
+        fetchMovies();
+    }, []); 
 
     return (
         <>
